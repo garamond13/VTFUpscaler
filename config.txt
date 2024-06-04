@@ -1,0 +1,85 @@
+/////////////////////////////////////////////////////////////////////
+// SCALE
+/////////////////////////////////////////////////////////////////////
+
+// Resolution will be clamped to 4096 (4k) while keeping the aspect ratio.
+scale_factor=2
+
+// Use jinc based (cylindrical) scaling,
+// or if not sinc based (orthogonal) scaling will be used.
+// 1 or 0.
+use_jinc=1
+
+// LANCZOS = 0
+// GINSENG = 1
+// HAMMING = 2
+// POW_COSINE = 3
+// KAISER = 4
+// POW_GARAMOND = 5
+// POW_BLACKMAN = 6
+// GNW = 7
+// SAID = 8
+// NEAREST = 9
+// LINEAR = 10
+// BICUBIC = 11
+// MOD_FSR = 12
+// BCSPLINE = 13
+kernel_function=5
+
+kernel_radius=2.6
+kernel_blur=0.87
+
+// Used by and as:
+// POW_COSINE: n
+// KAISER: beta
+// POW_GARAMOND: n
+// POW_BLACKMAN: a
+// GNW: s
+// SAID: eta
+// BICUBIC: a
+// MOD_FSR: b
+// BCSPLINE: b
+kernel_param1=8.5
+
+// Used by and as:
+// POW_GARAMOND: m
+// POW_BLACKMAN: n
+// GNW: n
+// SAID: chi
+// MOD_FSR: c
+// BCSPLINE: c
+kernel_param2=7.0
+
+// Min 0.0, max 1.0.
+antiringing_amount=1.0
+
+/////////////////////////////////////////////////////////////////////
+// UNSHARP MASK
+/////////////////////////////////////////////////////////////////////
+
+// 1 or 0.
+unsharp_enabeled=1
+
+unsharp_radius=2
+unsharp_sigma=1.0
+unsharp_amount=1.0
+
+/////////////////////////////////////////////////////////////////////
+// VTF SPECIFIC
+/////////////////////////////////////////////////////////////////////
+
+// POINT = 0
+// BOX = 1
+// TRIANGLE = 2
+// QUADRATIC = 3
+// CUBIC = 4
+// CATROM = 5
+// MITCHELL = 6
+// GAUSSIAN = 7
+// SINC = 8
+// BESSEL = 9
+// HANNING = 10
+// HAMMING = 11
+// BLACKMAN = 12
+// KAISER = 13
+mipmap_filter=12
