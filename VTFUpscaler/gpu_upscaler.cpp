@@ -3,11 +3,11 @@
 #include "global.h"
 
 // Shader byte code.
-#include "vs_quad.h"
-#include "ps_sample.h"
-#include "ps_resample_ortho.h"
-#include "ps_resample_cyl.h"
-#include "ps_unsharp.h"
+#include "vs_quad_hlsl.h"
+#include "ps_sample_hlsl.h"
+#include "ps_resample_ortho_hlsl.h"
+#include "ps_resample_cyl_hlsl.h"
+#include "ps_unsharp_hlsl.h"
 
 union Cb_types
 {
