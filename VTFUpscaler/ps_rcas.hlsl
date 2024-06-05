@@ -44,5 +44,5 @@ float4 main(Vs_out vs_out) : SV_Target
 	const float4 lobe4 = max(-hit_min, hit_max);
 	const float lobe = max(-RCAS_LIMIT, min(max(lobe4.r, max(lobe4.g, max(lobe4.b, lobe4.a))), 0.0)) * amount;
 	
-	return (lobe * b + lobe * d + lobe * h + lobe * f + e) / (4.0 * lobe + 1);
+	return (lobe * b + lobe * d + lobe * h + lobe * f + e) / (4.0 * lobe + 1.0);
 }

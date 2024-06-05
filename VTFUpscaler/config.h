@@ -32,7 +32,7 @@ public:
 	Cfg_var<float, "kernel_param1"> m_kernel_param1;
 	Cfg_var<float, "kernel_param2"> m_kernel_param2;
 	Cfg_var<float, "antiringing_amount"> m_antiringing_amount;
-	Cfg_var<bool, "sharpening_enabeled"> m_sharpening_filter;
+	Cfg_var<bool, "sharpening_filter"> m_sharpening_filter;
 	Cfg_var<float, "sharpening_amount"> m_sharpening_amount;
 	Cfg_var<int, "unsharp_radius"> m_unsharp_radius;
 	Cfg_var<float, "unsharp_sigma"> m_unsharp_sigma;
