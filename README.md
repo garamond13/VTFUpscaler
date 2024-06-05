@@ -7,7 +7,7 @@ VTFUpscaler is a tool designed for high-quality upscaling of Valve Texture Forma
 You can simply pull VTF file or a directory onto VTFUpscaler.exe or open them via the command line.
 
 ## Minimum system requirements
-Window 10
+Window 10  
 DirectX 11
 
 ## Compiling
