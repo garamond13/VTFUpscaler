@@ -35,14 +35,14 @@ void Gpu_upscaler::init()
 void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 {
 	create_image(data);
-	if (g_config.m_use_jinc.val)
-		pass_resample_cyl();
-	else
+	if (g_config.m_scale_filter.val == 1)
 		pass_resample_ortho();
-	if (g_config.m_sharpening_filter.val == 1)
-		pass_rcas();
-	else if (g_config.m_sharpening_filter.val == 2)
+	else if (g_config.m_scale_filter.val == 2)
+		pass_resample_cyl();
+	if (g_config.m_sharpen_filter.val == 1)
 		pass_unsharp();
+	else if (g_config.m_sharpen_filter.val == 2)
+		pass_rcas();
 	save_image(path);
 }
 
@@ -208,7 +208,7 @@ void Gpu_upscaler::pass_unsharp()
 	// Pass x axis.
 	cb_data[0].x.f = 1.0f / static_cast<float>(g_dst_width); // texel_size.x
 	cb_data[0].y.f = 0.0f; // texel_size.y
-	cb_data[1].x.f = g_config.m_sharpening_amount.val; // amount // Should be > 0.
+	cb_data[1].x.f = g_config.m_sharpen_amount.val; // amount // Should be > 0.
 	update_constant_buffer(cb0.Get(), cb_data.data(), sizeof(cb_data));
 	const std::array srvs{ m_srv_pass.Get(), srv_original.Get() };
 	m_device_context->PSSetShaderResources(0, srvs.size(), srvs.data());
@@ -222,7 +222,7 @@ void Gpu_upscaler::pass_rcas()
 		Cb4{
 			.x = { .f = 1.0f / static_cast<float>(g_dst_width) }, // texel_size.x
 			.y = { .f = 1.0f / static_cast<float>(g_dst_height) }, // texel_size.y
-			.z = { .f = g_config.m_sharpening_amount.val }, // amount // should be in the range (0.0f, 1.0f]
+			.z = { .f = g_config.m_sharpen_amount.val }, // amount // should be in the range (0.0f, 1.0f]
 		}
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;

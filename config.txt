@@ -2,13 +2,13 @@
 // SCALE
 /////////////////////////////////////////////////////////////////////
 
+// NONE = 0
+// ORTHOGONAL_SINC = 1
+// CYLINDRICAL_JINC = 2
+scale_filter=2
+
 // Resolution will be clamped to 4096 (4k) while keeping the aspect ratio.
 scale_factor=2
-
-// Use jinc based (cylindrical) scaling,
-// or if not sinc based (orthogonal) scaling will be used.
-// 1 or 0.
-use_jinc=1
 
 // LANCZOS = 0
 // GINSENG = 1
@@ -54,16 +54,16 @@ kernel_param2=7.0
 antiringing_amount=1.0
 
 /////////////////////////////////////////////////////////////////////
-// POST SCALE SHARPENING
+// POST SCALE SHARPEN
 /////////////////////////////////////////////////////////////////////
 
 // NONE = 0
-// RCAS = 1
-// UNSHARP_MASK = 2
-sharpening_filter=1
+// UNSHARP_MASK = 1
+// RCAS = 2
+sharpen_filter=2
 
 // For RCAS should be in the range (0.0, 1.0].
-sharpening_amount=1.0
+sharpen_amount=1.0
 
 // Used by UNSHARP_MASK
 unsharp_radius=2

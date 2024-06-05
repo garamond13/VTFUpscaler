@@ -31,14 +31,20 @@ namespace
 			return;
 		}
 
-		g_dst_width = g_src_width * g_config.m_scale_factor.val;
-		g_dst_height = g_src_height * g_config.m_scale_factor.val;
+		if (g_config.m_scale_filter.val) {
+			g_dst_width = g_src_width * g_config.m_scale_factor.val;
+			g_dst_height = g_src_height * g_config.m_scale_factor.val;
 
-		// Limit scale so that we don't exceed 4k resolution, or stretch image.
-		if (g_dst_width > g_max_image_size<int> || g_dst_height > g_max_image_size<int>) {
-			const int new_scale = std::min(g_max_image_size<double> / static_cast<double>(g_src_width), g_max_image_size<double> / static_cast<double>(g_src_height));
-			g_dst_width = g_src_width * new_scale;
-			g_dst_height = g_src_height * new_scale;
+			// Limit scale so that we don't exceed 4k resolution, or stretch image.
+			if (g_dst_width > g_max_image_size<int> || g_dst_height > g_max_image_size<int>) {
+				const int new_scale = std::min(g_max_image_size<double> / static_cast<double>(g_src_width), g_max_image_size<double> / static_cast<double>(g_src_height));
+				g_dst_width = g_src_width * new_scale;
+				g_dst_height = g_src_height * new_scale;
+			}
+		}
+		else {
+			g_dst_width = g_src_width;
+			g_dst_height = g_src_height;
 		}
 
 		// Upscale and save in place new vtf file.
