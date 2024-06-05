@@ -9,5 +9,5 @@ struct Vs_out
 
 float4 main(Vs_out vs_out) : SV_Target
 {
-    return tex.SampleLevel(smp, vs_out.texcoord, 0.0);
+    return clamp(tex.SampleLevel(smp, vs_out.texcoord, 0.0), 0.0, 1.0);
 }
