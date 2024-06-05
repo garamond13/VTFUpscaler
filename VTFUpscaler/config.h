@@ -37,6 +37,7 @@ public:
 	Cfg_var<float, "unsharp_sigma"> m_unsharp_sigma;
 	Cfg_var<float, "unsharp_amount"> m_unsharp_amount;
 	Cfg_var<int, "mipmap_filter"> m_mipmap_filter;
+	Cfg_var<bool, "save_uncompressed"> m_save_uncompressed;
 private:
 	std::filesystem::path get_path();
 };

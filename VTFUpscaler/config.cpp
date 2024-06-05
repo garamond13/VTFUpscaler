@@ -51,6 +51,7 @@ void Config::read()
 				read(m_unsharp_sigma)
 				read(m_unsharp_amount)
 				read(m_mipmap_filter)
+				read(m_save_uncompressed)
 			}
 		}
 	}

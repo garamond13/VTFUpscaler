@@ -63,12 +63,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	if (!argv[1]) {
-		std::cerr << "USAGE: VTFUpscaler file.vtf or VTFUpscaler directory.\n";
-		system("pause");
-		return 0;
-	}
-
 	try {
 		g_config.read();
 	}
@@ -77,6 +71,13 @@ int main(int argc, char* argv[])
 		system("pause");
 		return 1;
 	}
+
+	if (!argv[1]) {
+		std::cerr << "USAGE: VTFUpscaler file.vtf or VTFUpscaler directory.\n";
+		system("pause");
+		return 0;
+	}
+	const std::filesystem::path path(argv[1]);
 	
 	try {
 		g_gpu_upscaler.init();
@@ -91,7 +92,6 @@ int main(int argc, char* argv[])
 	g_vtf_create_options.MipmapFilter = static_cast<VTFMipmapFilter>(g_config.m_mipmap_filter.val);
 
 	// Process single file or directory including subdirectories.
-	const std::filesystem::path path(argv[1]);
 	if (std::filesystem::is_directory(path)) {
 
 		// First save paths to all .vtf filles we need to process.
