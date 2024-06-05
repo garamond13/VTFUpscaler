@@ -83,3 +83,5 @@ unsharp_amount=1.0
 // BLACKMAN = 12
 // KAISER = 13
 mipmap_filter=12
+
+save_uncompressed=0
