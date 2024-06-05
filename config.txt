@@ -54,15 +54,20 @@ kernel_param2=7.0
 antiringing_amount=1.0
 
 /////////////////////////////////////////////////////////////////////
-// UNSHARP MASK
+// POST SCALE SHARPENING
 /////////////////////////////////////////////////////////////////////
 
-// 1 or 0.
-unsharp_enabeled=1
+// NONE = 0
+// RCAS = 1
+// UNSHARP_MASK = 2
+sharpening_filter=1
 
+// For RCAS should be in the range (0.0, 1.0].
+sharpening_amount=1.0
+
+// Used by UNSHARP_MASK
 unsharp_radius=2
 unsharp_sigma=1.0
-unsharp_amount=1.0
 
 /////////////////////////////////////////////////////////////////////
 // VTF SPECIFIC

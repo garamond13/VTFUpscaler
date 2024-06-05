@@ -8,6 +8,7 @@
 #include "ps_resample_ortho_hlsl.h"
 #include "ps_resample_cyl_hlsl.h"
 #include "ps_unsharp_hlsl.h"
+#include "ps_rcas_hlsl.h"
 
 union Cb_types
 {
@@ -38,7 +39,9 @@ void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 		pass_resample_cyl();
 	else
 		pass_resample_ortho();
-	if (g_config.m_unsharp_enabeled.val)
+	if (g_config.m_sharpening_filter.val == 1)
+		pass_rcas();
+	else if (g_config.m_sharpening_filter.val == 2)
 		pass_unsharp();
 	save_image(path);
 }
@@ -205,10 +208,26 @@ void Gpu_upscaler::pass_unsharp()
 	// Pass x axis.
 	cb_data[0].x.f = 1.0f / static_cast<float>(g_dst_width); // texel_size.x
 	cb_data[0].y.f = 0.0f; // texel_size.y
-	cb_data[1].x.f = g_config.m_unsharp_amount.val; // amount // Should be > 0.
+	cb_data[1].x.f = g_config.m_sharpening_amount.val; // amount // Should be > 0.
 	update_constant_buffer(cb0.Get(), cb_data.data(), sizeof(cb_data));
 	const std::array srvs{ m_srv_pass.Get(), srv_original.Get() };
 	m_device_context->PSSetShaderResources(0, srvs.size(), srvs.data());
+	draw_pass(g_dst_width, g_dst_height);
+}
+
+void Gpu_upscaler::pass_rcas()
+{
+	create_pixel_shader(PS_RCAS, sizeof(PS_RCAS));
+	const alignas(16) std::array cb_data = {
+		Cb4{
+			.x = { .f = 1.0f / static_cast<float>(g_dst_width) }, // texel_size.x
+			.y = { .f = 1.0f / static_cast<float>(g_dst_height) }, // texel_size.y
+			.z = { .f = g_config.m_sharpening_amount.val }, // amount // should be in the range (0.0f, 1.0f]
+		}
+	};
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
+	create_constant_buffer(sizeof(cb_data), &cb_data, cb0.ReleaseAndGetAddressOf());
+	m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
 	draw_pass(g_dst_width, g_dst_height);
 }
 

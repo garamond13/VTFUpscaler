@@ -67,6 +67,9 @@
     <FxCompile Include="ps_unsharp.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="ps_rcas.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="kernel_functions.hlsli">

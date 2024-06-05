@@ -15,6 +15,7 @@ private:
 	void pass_resample_ortho();
 	void pass_resample_cyl();
 	void pass_unsharp();
+	void pass_rcas();
 	void create_pixel_shader(const BYTE* shader, size_t shader_size) const;
 	void create_constant_buffer(UINT byte_width, const void* data, ID3D11Buffer** buffer) const;
 	void update_constant_buffer(ID3D11Buffer* buffer, const void* data, size_t size) const;
