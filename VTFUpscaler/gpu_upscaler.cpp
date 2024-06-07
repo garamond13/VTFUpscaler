@@ -9,6 +9,7 @@
 #include "ps_resample_cyl_hlsl.h"
 #include "ps_unsharp_hlsl.h"
 #include "ps_rcas_hlsl.h"
+#include "ps_bilateral_mean_hlsl.h"
 
 union Cb_types
 {
@@ -35,6 +36,8 @@ void Gpu_upscaler::init()
 void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 {
 	create_image(data);
+	if (g_config.m_denoize_fileter.val == 1)
+		pass_denoise();
 	if (g_config.m_scale_filter.val == 1)
 		pass_resample_ortho();
 	else if (g_config.m_scale_filter.val == 2)
@@ -107,7 +110,27 @@ void Gpu_upscaler::create_image(const void* data)
 	};
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2d;
 	vtfu_assert(m_device->CreateTexture2D(&texture2d_desc, &subresource_data, texture2d.ReleaseAndGetAddressOf()), == S_OK);
-	vtfu_assert(m_device->CreateShaderResourceView(texture2d.Get(), nullptr, m_srv_image.ReleaseAndGetAddressOf()), == S_OK);
+	vtfu_assert(m_device->CreateShaderResourceView(texture2d.Get(), nullptr, m_srv_pass.ReleaseAndGetAddressOf()), == S_OK);
+}
+
+void Gpu_upscaler::pass_denoise()
+{
+	create_pixel_shader(PS_BILATERAL_MEAN, sizeof(PS_BILATERAL_MEAN));
+	const alignas(16) std::array cb_data = {
+		Cb4{
+			.x = { .f = 1.0f / static_cast<float>(g_src_width) }, // texel_size.x
+			.y = { .f = 1.0f / static_cast<float>(g_src_height) }, // texel_size.y
+			.z = { .i = g_config.m_denoize_radius.val }, // radius
+			.w = { .f = g_config.m_denoize_sigma_spatial.val }, // sigma_spatial
+		},
+		Cb4{
+			.x = { .f = g_config.m_denoize_sigma_intensity.val } // sigma_intensity
+		}
+	};
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
+	create_constant_buffer(sizeof(cb_data), &cb_data, cb0.ReleaseAndGetAddressOf());
+	m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
+	draw_pass(g_src_width, g_src_height);
 }
 
 void Gpu_upscaler::pass_resample_ortho()
@@ -141,7 +164,7 @@ void Gpu_upscaler::pass_resample_ortho()
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
 	create_constant_buffer(sizeof(cb_data), &cb_data, cb0.ReleaseAndGetAddressOf());
-	m_device_context->PSSetShaderResources(0, 1, m_srv_image.GetAddressOf());
+	m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
 	draw_pass(g_src_width, g_dst_height);
 
 	// Pass x axis.
@@ -179,7 +202,7 @@ void Gpu_upscaler::pass_resample_cyl()
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
 	create_constant_buffer(sizeof(cb_data), &cb_data, cb0.ReleaseAndGetAddressOf());
-	m_device_context->PSSetShaderResources(0, 1, m_srv_image.GetAddressOf());
+	m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
 	draw_pass(g_dst_width, g_dst_height);
 }
 

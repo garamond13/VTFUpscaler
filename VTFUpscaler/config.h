@@ -24,6 +24,10 @@ class Config
 {
 public:
 	void read();
+	Cfg_var<int, "denoize_filter"> m_denoize_fileter;
+	Cfg_var<int, "denoize_radius"> m_denoize_radius;
+	Cfg_var<float, "denoize_sigma_spatial"> m_denoize_sigma_spatial;
+	Cfg_var<float, "denoize_sigma_intensity"> m_denoize_sigma_intensity;
 	Cfg_var<int, "scale_filter"> m_scale_filter;
 	Cfg_var<int, "scale_factor"> m_scale_factor;
 	Cfg_var<int, "kernel_function"> m_kernel_function;

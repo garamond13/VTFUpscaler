@@ -12,6 +12,7 @@ private:
 	void create_vertex_shader() const;
 	void create_sampler() const;
 	void create_image(const void* data);
+	void pass_denoise();
 	void pass_resample_ortho();
 	void pass_resample_cyl();
 	void pass_unsharp();
@@ -24,6 +25,5 @@ private:
 	void save_image(const std::filesystem::path& path);
 	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv_image;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv_pass;
 };
