@@ -368,9 +368,9 @@ void Gpu_upscaler::save_image(const std::filesystem::path& path)
 	VTFLib::CVTFFile vtf_dst;
 	if (g_config.m_save_uncompressed.val) {
 		if (g_vtf_create_options.ImageFormat == IMAGE_FORMAT_DXT1)
-			g_vtf_create_options.ImageFormat = IMAGE_FORMAT_RGB888;
+			g_vtf_create_options.ImageFormat = IMAGE_FORMAT_BGR888;
 		else if (g_vtf_create_options.ImageFormat == IMAGE_FORMAT_DXT5)
-			g_vtf_create_options.ImageFormat = IMAGE_FORMAT_RGBA8888;
+			g_vtf_create_options.ImageFormat = IMAGE_FORMAT_BGRA8888;
 	}
 	if (vtf_dst.Create(g_dst_width, g_dst_height, reinterpret_cast<vlByte*>(mapped_resource.pData), g_vtf_create_options) == vlFalse)
 		throw std::runtime_error("FAILED: " + path.string());
