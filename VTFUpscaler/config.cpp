@@ -38,10 +38,10 @@ void Config::read()
 			if (pos != std::string::npos) {
 				const auto key = line.substr(0, pos);
 				const auto val = line.substr(pos + 1);
-				read(m_denoize_fileter)
-				read(m_denoize_radius)
-				read(m_denoize_sigma_spatial)
-				read(m_denoize_sigma_intensity)
+				read(m_denoise_fileter)
+				read(m_denoise_radius)
+				read(m_denoise_sigma_spatial)
+				read(m_denoise_sigma_intensity)
 				read(m_scale_filter)
 				read(m_scale_factor)
 				read(m_kernel_function)

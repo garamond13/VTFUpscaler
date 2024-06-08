@@ -39,7 +39,7 @@ void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 	create_image(data);
 
 	// Pre scale denoise.
-	if (g_config.m_denoize_fileter.val == 1)
+	if (g_config.m_denoise_fileter.val == 1)
 		pass_denoise();
 
 	// Scale.
@@ -132,11 +132,11 @@ void Gpu_upscaler::pass_denoise()
 		Cb4{
 			.x = { .f = 1.0f / static_cast<float>(g_src_width) }, // texel_size.x
 			.y = { .f = 1.0f / static_cast<float>(g_src_height) }, // texel_size.y
-			.z = { .i = g_config.m_denoize_radius.val }, // radius
-			.w = { .f = g_config.m_denoize_sigma_spatial.val }, // sigma_spatial
+			.z = { .i = g_config.m_denoise_radius.val }, // radius
+			.w = { .f = g_config.m_denoise_sigma_spatial.val }, // sigma_spatial
 		},
 		Cb4{
-			.x = { .f = g_config.m_denoize_sigma_intensity.val } // sigma_intensity
+			.x = { .f = g_config.m_denoise_sigma_intensity.val } // sigma_intensity
 		}
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
