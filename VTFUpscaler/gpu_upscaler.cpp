@@ -10,6 +10,7 @@
 #include "ps_unsharp_hlsl.h"
 #include "ps_rcas_hlsl.h"
 #include "ps_bilateral_mean_hlsl.h"
+#include "ps_grain_hlsl.h"
 
 union Cb_types
 {
@@ -36,16 +37,27 @@ void Gpu_upscaler::init()
 void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 {
 	create_image(data);
+
+	// Pre scale denoise.
 	if (g_config.m_denoize_fileter.val == 1)
 		pass_denoise();
+
+	// Scale.
 	if (g_config.m_scale_filter.val == 1)
 		pass_resample_ortho();
 	else if (g_config.m_scale_filter.val == 2)
 		pass_resample_cyl();
+	
+	// Post scale sharpen.
 	if (g_config.m_sharpen_filter.val == 1)
 		pass_unsharp();
 	else if (g_config.m_sharpen_filter.val == 2)
 		pass_rcas();
+
+	// Post scale grain.
+	if (g_config.m_grain_filter.val == 1)
+		pass_grain();
+	
 	save_image(path);
 }
 
@@ -246,6 +258,21 @@ void Gpu_upscaler::pass_rcas()
 			.x = { .f = 1.0f / static_cast<float>(g_dst_width) }, // texel_size.x
 			.y = { .f = 1.0f / static_cast<float>(g_dst_height) }, // texel_size.y
 			.z = { .f = g_config.m_sharpen_amount.val }, // amount // should be in the range (0.0f, 1.0f]
+		}
+	};
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
+	create_constant_buffer(sizeof(cb_data), &cb_data, cb0.ReleaseAndGetAddressOf());
+	m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
+	draw_pass(g_dst_width, g_dst_height);
+}
+
+void Gpu_upscaler::pass_grain()
+{
+	create_pixel_shader(PS_GRAIN, sizeof(PS_GRAIN));
+	const alignas(16) std::array cb_data = {
+		Cb4{
+			.x = { .f = g_config.m_grain_amount.val }, // amount
+			.y = { .f = g_config.m_grain_size.val }, // size
 		}
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;

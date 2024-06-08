@@ -40,6 +40,9 @@ public:
 	Cfg_var<float, "sharpen_amount"> m_sharpen_amount;
 	Cfg_var<int, "unsharp_radius"> m_unsharp_radius;
 	Cfg_var<float, "unsharp_sigma"> m_unsharp_sigma;
+	Cfg_var<int, "grain_filter"> m_grain_filter;
+	Cfg_var<float, "grain_amount"> m_grain_amount;
+	Cfg_var<float, "grain_size"> m_grain_size;
 	Cfg_var<int, "mipmap_filter"> m_mipmap_filter;
 	Cfg_var<bool, "save_uncompressed"> m_save_uncompressed;
 private:

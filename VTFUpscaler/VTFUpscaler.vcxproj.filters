@@ -73,6 +73,9 @@
     <FxCompile Include="ps_bilateral_mean.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="ps_grain.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="kernel_functions.hlsli">
