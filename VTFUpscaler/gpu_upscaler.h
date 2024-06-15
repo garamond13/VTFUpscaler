@@ -10,7 +10,8 @@ public:
 private:
 	void create_device();
 	void create_vertex_shader() const;
-	void create_sampler() const;
+	void create_samplers() const;
+	void set_passes();
 	void create_image(const void* data);
 	void pass_denoise();
 	void pass_resample_ortho();
@@ -18,7 +19,8 @@ private:
 	void pass_unsharp();
 	void pass_rcas();
 	void pass_grain();
-	void create_pixel_shader(const BYTE* shader, size_t shader_size) const;
+	void pass_user_shader();
+	void create_pixel_shader(const void* shader, size_t shader_size) const;
 	void create_constant_buffer(UINT byte_width, const void* data, ID3D11Buffer** buffer) const;
 	void update_constant_buffer(ID3D11Buffer* buffer, const void* data, size_t size) const;
 	void draw_pass(UINT width, UINT height);
@@ -27,4 +29,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv_pass;
+	std::map<int, std::function<void()>> m_passes;
+	int m_user_shader_index;
 };

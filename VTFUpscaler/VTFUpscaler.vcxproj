@@ -146,6 +146,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="user_shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="gpu_upscaler.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="strtoval.h" />
+    <ClInclude Include="user_shader.h" />
     <ClInclude Include="vtfu_assert.h" />
   </ItemGroup>
   <ItemGroup>

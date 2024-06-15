@@ -1,5 +1,5 @@
 Texture2D tex : register(t0);
-SamplerState smp : register(s0);
+SamplerState smp : register(s1);
 
 struct Vs_out
 {

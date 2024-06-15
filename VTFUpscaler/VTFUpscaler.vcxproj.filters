@@ -30,6 +30,9 @@
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="user_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="strtoval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="user_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

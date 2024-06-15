@@ -31,33 +31,15 @@ void Gpu_upscaler::init()
 {
 	create_device();
 	create_vertex_shader();
-	create_sampler();
+	create_samplers();
+	set_passes();
 }
 
 void Gpu_upscaler::upscale(const void* data, const std::filesystem::path& path)
 {
 	create_image(data);
-
-	// Pre scale denoise.
-	if (g_config.m_denoise_fileter.val == 1)
-		pass_denoise();
-
-	// Scale.
-	if (g_config.m_scale_filter.val == 1)
-		pass_resample_ortho();
-	else if (g_config.m_scale_filter.val == 2)
-		pass_resample_cyl();
-	
-	// Post scale sharpen.
-	if (g_config.m_sharpen_filter.val == 1)
-		pass_unsharp();
-	else if (g_config.m_sharpen_filter.val == 2)
-		pass_rcas();
-
-	// Post scale grain.
-	if (g_config.m_grain_filter.val == 1)
-		pass_grain();
-	
+	for (const auto& pass : m_passes)
+		pass.second();
 	save_image(path);
 }
 
@@ -87,19 +69,87 @@ void Gpu_upscaler::create_vertex_shader() const
 	m_device_context->VSSetShader(vertex_shader.Get(), nullptr, 0);
 }
 
-void Gpu_upscaler::create_sampler() const
+void Gpu_upscaler::create_samplers() const
 {
-	const D3D11_SAMPLER_DESC sampler_desc = {
-		.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+	D3D11_SAMPLER_DESC sampler_desc = {
 		.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP,
 		.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP,
 		.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP,
 		.MaxAnisotropy = 1,
 		.ComparisonFunc = D3D11_COMPARISON_NEVER
 	};
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state;
-	vtfu_assert(m_device->CreateSamplerState(&sampler_desc, sampler_state.ReleaseAndGetAddressOf()), == S_OK);
-	m_device_context->PSSetSamplers(0, 1, sampler_state.GetAddressOf());
+
+	// Create point sampler.
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_point;
+	vtfu_assert(m_device->CreateSamplerState(&sampler_desc, sampler_state_point.ReleaseAndGetAddressOf()), == S_OK);
+
+	// Create linear sampler.
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_linear;
+	vtfu_assert(m_device->CreateSamplerState(&sampler_desc, sampler_state_linear.ReleaseAndGetAddressOf()), == S_OK);
+
+	// Set point sampler as s0.
+	// Set linear sampler as s1.
+	const std::array sampler_states = {
+		sampler_state_point.Get(),
+		sampler_state_linear.Get()
+	};
+	m_device_context->PSSetSamplers(0, sampler_states.size(), sampler_states.data());
+}
+
+void Gpu_upscaler::set_passes()
+{
+	// Pre scale denoise.
+	if (g_config.m_denoise_fileter.val == 1)
+		m_passes.insert(std::make_pair(HOOK_DENOISE, [this]() { pass_denoise(); }));
+
+	// Scale.
+	if (g_config.m_scale_filter.val == 1)
+		m_passes.insert(std::make_pair(HOOK_SCALE, [this]() { pass_resample_ortho(); }));
+	else if (g_config.m_scale_filter.val == 2)
+		m_passes.insert(std::make_pair(HOOK_SCALE, [this]() { pass_resample_cyl(); }));
+
+	// Post scale sharpen.
+	if (g_config.m_sharpen_filter.val == 1)
+		m_passes.insert(std::make_pair(HOOK_SHARPEN, [this]() { pass_unsharp(); }));
+	else if (g_config.m_sharpen_filter.val == 2)
+		m_passes.insert(std::make_pair(HOOK_SHARPEN, [this]() { pass_rcas(); }));
+
+	// Post scale grain.
+	if (g_config.m_grain_filter.val == 1)
+		m_passes.insert(std::make_pair(HOOK_GRAIN, [this]() { pass_grain(); }));
+
+	// Insert user shaders.
+	int i_hook_main = 0;
+	int i_hook_denoise = 0;
+	int i_hook_scale = 0;
+	int i_hook_sharpen = 0;
+	int i_hook_grain = 0;
+	for (auto& user_shader : g_user_shaders) {
+		if (user_shader.m_hooked == HOOK_MAIN) {
+			user_shader.m_hooked += ++i_hook_main;
+			m_passes.insert(std::make_pair(user_shader.m_hooked, [this]() { pass_user_shader(); }));
+		}
+		if (user_shader.m_hooked == HOOK_DENOISE) {
+			user_shader.m_hooked += ++i_hook_denoise;
+			m_passes.insert(std::make_pair(user_shader.m_hooked, [this]() { pass_user_shader(); }));
+		}
+		if (user_shader.m_hooked == HOOK_SCALE) {
+			user_shader.m_hooked += ++i_hook_scale;
+			m_passes.insert(std::make_pair(user_shader.m_hooked, [this]() { pass_user_shader(); }));
+		}
+		if (user_shader.m_hooked == HOOK_SHARPEN) {
+			user_shader.m_hooked += ++i_hook_sharpen;
+			m_passes.insert(std::make_pair(user_shader.m_hooked, [this]() { pass_user_shader(); }));
+		}
+		if (user_shader.m_hooked == HOOK_GRAIN) {
+			user_shader.m_hooked += ++i_hook_grain;
+			m_passes.insert(std::make_pair(user_shader.m_hooked, [this]() { pass_user_shader(); }));
+		}
+	}
+
+	// Sort g_user_shaders.
+	std::sort(g_user_shaders.begin(), g_user_shaders.end(), [](const User_shader& a, const User_shader& b) { return a.m_hooked < b.m_hooked; });
 }
 
 void Gpu_upscaler::create_image(const void* data)
@@ -257,7 +307,7 @@ void Gpu_upscaler::pass_rcas()
 		Cb4{
 			.x = { .f = 1.0f / static_cast<float>(g_dst_width) }, // texel_size.x
 			.y = { .f = 1.0f / static_cast<float>(g_dst_height) }, // texel_size.y
-			.z = { .f = g_config.m_sharpen_amount.val }, // amount // should be in the range (0.0f, 1.0f]
+			.z = { .f = g_config.m_sharpen_amount.val }, // amount // Should be in the range (0.0f, 1.0f].
 		}
 	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb0;
@@ -281,7 +331,29 @@ void Gpu_upscaler::pass_grain()
 	draw_pass(g_dst_width, g_dst_height);
 }
 
-void Gpu_upscaler::create_pixel_shader(const BYTE* shader, size_t shader_size) const
+void Gpu_upscaler::pass_user_shader()
+{
+	std::unordered_map<int, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvs;
+	for (int i = 0; i < g_user_shaders[m_user_shader_index].m_passes.size(); ++i) {
+		create_pixel_shader(g_user_shaders[m_user_shader_index].m_passes[i].m_data->GetBufferPointer(), g_user_shaders[m_user_shader_index].m_passes[i].m_data->GetBufferSize());
+		m_device_context->PSSetShaderResources(0, 1, m_srv_pass.GetAddressOf());
+		
+		// Handle //!BIND
+		if (!g_user_shaders[m_user_shader_index].m_passes[i].m_binds.empty())
+			for (const auto& bind : g_user_shaders[m_user_shader_index].m_passes[i].m_binds)
+				m_device_context->PSSetShaderResources(bind, 1, srvs.find(bind)->second.GetAddressOf());
+		
+		draw_pass(*g_user_shaders[m_user_shader_index].m_passes[i].m_width, *g_user_shaders[m_user_shader_index].m_passes[i].m_heigth);
+
+		// Handle //!SAVE
+		if (g_user_shaders[m_user_shader_index].m_passes[i].m_save)
+			srvs.insert_or_assign(g_user_shaders[m_user_shader_index].m_passes[i].m_save, m_srv_pass);
+
+	}
+	++m_user_shader_index;
+}
+
+void Gpu_upscaler::create_pixel_shader(const void* shader, size_t shader_size) const
 {
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader;
 	vtfu_assert(m_device->CreatePixelShader(shader, shader_size, nullptr, pixel_shader.ReleaseAndGetAddressOf()), == S_OK);
@@ -408,4 +480,5 @@ void Gpu_upscaler::save_image(const std::filesystem::path& path)
 
 	// Finish with flush.
 	m_device_context->Flush();
+	m_user_shader_index = 0;
 }

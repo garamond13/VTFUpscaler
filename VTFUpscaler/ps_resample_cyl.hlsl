@@ -4,7 +4,7 @@
 #include "kernel_functions.hlsli"
 
 Texture2D tex : register(t0);
-SamplerState smp : register(s0);
+SamplerState smp : register(s1);
 
 cbuffer cb0 : register(b0)
 {

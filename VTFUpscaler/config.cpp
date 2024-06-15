@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "config.h"
+#include "global.h"
 
 /* Config example
 
@@ -42,8 +43,8 @@ void Config::read()
 				read(m_denoise_radius)
 				read(m_denoise_sigma_spatial)
 				read(m_denoise_sigma_intensity)
-				read(m_scale_filter)
 				read(m_scale_factor)
+				read(m_scale_filter)
 				read(m_kernel_function)
 				read(m_kernel_radius)
 				read(m_kernel_blur)
@@ -59,6 +60,22 @@ void Config::read()
 				read(m_grain_size)
 				read(m_mipmap_filter)
 				read(m_save_uncompressed)
+
+				// Expects user_shaders val to be as: "shader1.hlsl","shader2.hlsl","shader3.hlsl"
+				if (key == "user_shaders" && !val.empty()) {
+					size_t begin_pos = 0;
+					size_t end_pos = 0;
+					const auto last_qoutemark = val.find_last_of('\"');
+					while (end_pos < last_qoutemark) {
+						begin_pos = val.find('\"', end_pos);
+						if (val.at(begin_pos + 1) == ',')
+							begin_pos += 2;
+						end_pos = val.find('\"', begin_pos + 1);
+						const std::filesystem::path sub_val = val.substr(begin_pos + 1, end_pos - begin_pos - 1);
+						g_user_shaders.push_back(User_shader(sub_val));
+					}
+					
+				}
 			}
 		}
 	}

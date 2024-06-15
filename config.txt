@@ -14,13 +14,13 @@ denoise_sigma_intensity=0.05
 // SCALE
 /////////////////////////////////////////////////////////////////////
 
+// Resolution will be clamped to 4096 (4k) while keeping the aspect ratio.
+scale_factor=2
+
 // NONE = 0
 // ORTHOGONAL_SINC = 1
 // CYLINDRICAL_JINC = 2
 scale_filter=2
-
-// Resolution will be clamped to 4096 (4k) while keeping the aspect ratio.
-scale_factor=2
 
 // LANCZOS = 0
 // GINSENG = 1
@@ -113,3 +113,10 @@ grain_size=0.1
 mipmap_filter=12
 
 save_uncompressed=0
+
+/////////////////////////////////////////////////////////////////////
+// USER SHADERS
+/////////////////////////////////////////////////////////////////////
+
+// Example: user_shaders="path_to_user_shader1.hlsl","user_shader2.hlsl","shader3.hlsl"
+user_shaders=

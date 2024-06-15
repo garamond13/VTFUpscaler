@@ -28,8 +28,8 @@ public:
 	Cfg_var<int, "denoise_radius"> m_denoise_radius;
 	Cfg_var<float, "denoise_sigma_spatial"> m_denoise_sigma_spatial;
 	Cfg_var<float, "denoise_sigma_intensity"> m_denoise_sigma_intensity;
-	Cfg_var<int, "scale_filter"> m_scale_filter;
 	Cfg_var<int, "scale_factor"> m_scale_factor;
+	Cfg_var<int, "scale_filter"> m_scale_filter;
 	Cfg_var<int, "kernel_function"> m_kernel_function;
 	Cfg_var<float, "kernel_radius"> m_kernel_radius;
 	Cfg_var<float, "kernel_blur"> m_kernel_blur;
