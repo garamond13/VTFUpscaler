@@ -8,4 +8,4 @@ In order to use user shaders you can put them anyware you want, just add path to
 Expects: scale_factor=2, scale_filter=0
 
 <b/>Anime4K\Anime4K_Upscale_Denoise_CNN_x2_UL.hlsl</b>  
-Expects: scale_factor=2, scale_filter=0
+Expects: denoise_filter=0, scale_factor=2, scale_filter=0
