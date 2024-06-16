@@ -12,7 +12,9 @@ User_shader::User_shader(const std::filesystem::path& path) : m_passes(), m_hook
 	if (!file.is_open())
 		throw std::runtime_error("ERROR: Couldn't open user shader " + path.string() + '.');
 	std::string line;
-	std::string pass;
+	std::string buffer;
+	std::vector<D3D_SHADER_MACRO> shader_macros;
+	std::vector<std::pair<std::string, std::string>> shader_macros_data;
 	int index_pass = -1;
 	while (std::getline(file, line)) {
 		if (line[0] == '/' && line[1] == '/') {
@@ -46,6 +48,33 @@ User_shader::User_shader(const std::filesystem::path& path) : m_passes(), m_hook
 					}
 					else
 						throw std::runtime_error("ERROR: Unknown HOOK: " + line.substr(ln("//!HOOK ")) + ". In user shader " + path.string() + '.');
+				}
+				else if (line.substr(ln("//!")) == "BEGIN_USER_CONFIG")
+					continue;
+				else if (line.substr(ln("//!")) == "END_USER_CONFIG") {
+					std::stringstream ss(buffer);
+					while (std::getline(ss, line)) {
+						
+						// Remove comments.
+						auto pos = line.find("//");
+						if (pos != std::string::npos)
+							line.erase(pos);
+
+						// Remove all white spaces.
+						line.erase(std::remove_if(line.begin(), line.end(), [](unsigned char c) { return std::isspace(c); }), line.end());
+						
+						pos = line.find('=');
+						if (pos != std::string::npos)
+							shader_macros_data.push_back(std::pair(line.substr(0, pos), line.substr(pos + 1)));
+					}
+
+					// The last structure in the array serves as a terminator and must have all members set to NULL.
+					shader_macros.resize(shader_macros_data.size() + 1);
+
+					for (int i = 0; i < shader_macros_data.size(); ++i)
+						shader_macros[i] = D3D_SHADER_MACRO(shader_macros_data[i].first.c_str(), shader_macros_data[i].second.c_str());
+					buffer.clear();
+					continue;
 				}
 				else if (line.substr(ln("//!")) == "BEGIN_PASS") {
 					m_passes.push_back(User_shader_pass());
@@ -97,10 +126,10 @@ User_shader::User_shader(const std::filesystem::path& path) : m_passes(), m_hook
 					#endif
 
 					Microsoft::WRL::ComPtr<ID3DBlob> error;
-					D3DCompile(pass.c_str(), pass.size(), nullptr, nullptr, nullptr, "main", "ps_5_0", flags, 0, m_passes[index_pass].m_data.ReleaseAndGetAddressOf(), error.ReleaseAndGetAddressOf());
+					D3DCompile(buffer.c_str(), buffer.size(), nullptr, shader_macros.data(), nullptr, "main", "ps_5_0", flags, 0, m_passes[index_pass].m_data.ReleaseAndGetAddressOf(), error.ReleaseAndGetAddressOf());
 					if (error)
 						throw std::runtime_error("ERROR: Faild to compile user shader pass " + std::to_string(index_pass) + " with error: " + reinterpret_cast<const char*>(error->GetBufferPointer()) + ". In user shader " + path.string() + '.');
-					pass.clear();
+					buffer.clear();
 					continue;
 				}
 
@@ -108,6 +137,6 @@ User_shader::User_shader(const std::filesystem::path& path) : m_passes(), m_hook
 			else
 				continue;
 		}
-		pass += line + '\n';
+		buffer += line + '\n';
 	}
 }
