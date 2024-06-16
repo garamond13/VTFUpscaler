@@ -7,7 +7,7 @@ namespace
 	template<typename T>
 	constexpr T g_max_image_size = 4096;
 
-	constexpr std::array g_version = { 1, 2, 0 };
+	constexpr std::array g_version = { 2, 0, 0 };
 	Gpu_upscaler g_gpu_upscaler;
 
 	void upscale_vtf(const std::filesystem::path& path)
