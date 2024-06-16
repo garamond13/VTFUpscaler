@@ -4,7 +4,8 @@ VTFUpscaler is a tool designed for high-quality upscaling of Valve Texture Forma
 
 ## Usage
 
-You can simply pull VTF file or a directory onto VTFUpscaler.exe or open them via the command line.
+You can simply pull VTF file or a directory onto VTFUpscaler.exe or open them via the command line.  
+You can find user shaders in the [User shaders folder](User shaders).
 
 ## Minimum system requirements
 Window 10  
