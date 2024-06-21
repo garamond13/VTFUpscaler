@@ -32,6 +32,8 @@ radius=2 // Kernel radius, (0, 10+].
 //!END_USER_CONFIG
 
 //!BEGIN_PASS
+//!WIDTH SRC
+//!HEIGTH SRC
 
 Texture2D tex : register(t0);
 SamplerState smp : register(s0);
@@ -63,6 +65,8 @@ float4 main(Vs_out vs_out) : SV_Target
 //!END_PASS
 
 //!BEGIN_PASS
+//!WIDTH SRC
+//!HEIGTH SRC
 
 Texture2D tex : register(t0);
 SamplerState smp : register(s0);
